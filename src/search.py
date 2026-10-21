@@ -5,6 +5,10 @@ import random
 
 ROWS, COLS = 6, 7
 EMPTY, P1, P2 = 0, 1, 2
+CENTER_ZONE_SIZE = 3
+TWO_PIECE_SEQUENCE = 2
+THREE_PIECE_SEQUENCE = 3
+SEQUENCE_POINTS = {TWO_PIECE_SEQUENCE: 3, THREE_PIECE_SEQUENCE: 20}
 
 # -----------------------------------------------------------------------------
 # Utilidades de tabuleiro (PRONTAS)
@@ -113,7 +117,7 @@ def choose_move(board: List[List[int]], turn: int, config: Dict) -> Tuple[int, D
         print("calling minimax...")
         copied_board = copy_board(board)
         moved_board = make_move(copied_board, move, turn)
-        score = minimax(moved_board, other(turn), max_depth)
+        score = minimax(moved_board, other(turn), max_depth, depth=1)
         print(f"score para move {move} e player {turn} = {score}")
         if is_max_player(turn):
           if score > best_score:
@@ -191,11 +195,10 @@ def minimax(board, player, max_depth, depth = 0) -> int:
     if(is_tie): return 0
 
     if(game_ended):
-        return 1 if winner == P1 else -1
+        return 1_000_000 if winner == P1 else -1_000_000
 
     if(depth >= max_depth):
-      # Retornando 0 ate encaixar a heuristica
-      return 0
+      return heuristics(board)
 
     if(is_max_player(player)):
         best_score = -math.inf
@@ -215,4 +218,65 @@ def minimax(board, player, max_depth, depth = 0) -> int:
     return best_score
 
 
+def heuristics(board)->int:
+    return estimated_points(board, P1) - estimated_points(board, P2)
+
+
+def estimated_points(board: List[List[int]], player) -> int:
+    points = 0 
+    points += middle_ground_control_points(board, player)
+    points += sequence_points(board, player)
+    return points
+
+def sequence_points(board, player) -> int:
+    points = 0
+
+    def is_sequence_alive(mine, empty):
+        return mine + empty == 4
+
+    def points_by(sequence_size)-> int:
+        return SEQUENCE_POINTS.get(sequence_size, 0)
+
+    def points_in(window) -> int:
+        points = 0
+        mine = window.count(player)
+        empty = window.count(EMPTY)
+        if(is_sequence_alive(mine, empty)):
+            points += points_by(mine)
+        return points
     
+    # Horizontais
+    for r in range(ROWS):
+        for c in range(COLS - 3):
+          board_window = [board[r][c + i] for i in range(4)]
+          points += points_in(board_window)
+                  
+
+    # Verticais
+    for c in range(COLS):
+        for r in range(ROWS - 3):
+          board_window = [board[r + i][c] for i in range(4)]
+          points += points_in(board_window)
+
+    # Diag ↘
+    for r in range(ROWS - 3):
+        for c in range(COLS - 3):
+          board_window = [board[r + i][c + i] for i in range(4)]
+          points += points_in(board_window)
+
+    # Diag ↗
+    for r in range(3, ROWS):
+        for c in range(COLS - 3):
+          board_window = [board[r + i*-1][c + i] for i in range(4)]
+          points += points_in(board_window)
+
+    return points
+
+def middle_ground_control_points(board, player) -> int:
+    points = 0
+    row_start = ROWS - CENTER_ZONE_SIZE
+    col_start = (COLS - CENTER_ZONE_SIZE) // 2
+    col_end = col_start + CENTER_ZONE_SIZE
+
+    points = sum(1 for row in board[row_start:] for cell in row[col_start:col_end] if cell == player)
+    return points
