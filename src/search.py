@@ -113,7 +113,7 @@ def choose_move(board: List[List[int]], turn: int, config: Dict) -> Tuple[int, D
         print("calling minimax...")
         copied_board = copy_board(board)
         moved_board = make_move(copied_board, move, turn)
-        score = minimax(moved_board, turn, max_depth)
+        score = minimax(moved_board, other(turn), max_depth)
         print(f"score para move {move} e player {turn} = {score}")
         if is_max_player(turn):
           if score > best_score:
@@ -182,7 +182,7 @@ def minimax(board, player, max_depth, depth = 0) -> int:
       - depth: int
 
     Retorna:
-      - int (-1, 0, 1, math.inf, -math.inf)
+      - int (score)
     """
     
     game_ended, winner = terminal(board)
@@ -194,29 +194,24 @@ def minimax(board, player, max_depth, depth = 0) -> int:
         return 1 if winner == P1 else -1
 
     if(depth >= max_depth):
-      print(f"Limite de recursao do minimax atingido! Player = {player} | Depth = {depth}")
       # Retornando 0 ate encaixar a heuristica
       return 0
 
     if(is_max_player(player)):
         best_score = -math.inf
         for move in valid_moves(board):
-            print(f"Testando move {move} no minimax... Player = {player} | Depth = {depth}")
             copied_board = copy_board(board)
             new_board = make_move(copied_board, move, P1)
             score = minimax(new_board, other(P1), max_depth, depth + 1)
             best_score = max(best_score, score)
-            print(f"Best score para move {move} = {best_score} Player = {player} | Depth = {depth}")
         return best_score
 
     best_score = +math.inf
     for move in valid_moves(board):
-      print(f"Testando move {move} no minimax... Player = {player} | Depth = {depth}")
       copied_board = copy_board(board)
       new_board = make_move(copied_board, move, P2)
       score = minimax(new_board, other(P2), max_depth, depth + 1)
       best_score = min(best_score, score)
-      print(f"Best score para move {move} = {best_score} Player = {player} | Depth = {depth}")
     return best_score
 
 
