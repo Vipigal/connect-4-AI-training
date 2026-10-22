@@ -9,6 +9,7 @@ CENTER_ZONE_SIZE = 3
 TWO_PIECE_SEQUENCE = 2
 THREE_PIECE_SEQUENCE = 3
 SEQUENCE_POINTS = {TWO_PIECE_SEQUENCE: 3, THREE_PIECE_SEQUENCE: 20}
+CENTER_ORDER = sorted(range(COLS), key=lambda c: abs(c - COLS // 2))
 
 # -----------------------------------------------------------------------------
 # Utilidades de tabuleiro (PRONTAS)
@@ -19,6 +20,10 @@ def copy_board(board: List[List[int]]) -> List[List[int]]:
 def valid_moves(board: List[List[int]]) -> List[int]:
     """Retorna as colunas ainda jogáveis (topo vazio)."""
     return [c for c in range(COLS) if board[0][c] == EMPTY]
+
+def ordered_valid_moves(board: List[List[int]]) -> List[int]:
+    """Retorna as colunas ainda jogáveis (topo vazio). Ordena para retornar primeiro as colunas do meio do board para otimizar o minimax com poda"""
+    return [c for c in CENTER_ORDER if board[0][c] == EMPTY]
 
 def make_move(board: List[List[int]], col: int, player: int) -> Optional[List[List[int]]]:
     """Retorna um novo tabuleiro aplicando a gravidade na coluna col; None se inválido."""
@@ -100,7 +105,7 @@ def choose_move(board: List[List[int]], turn: int, config: Dict) -> Tuple[int, D
     def time_exceeded():
         return max_time_ms > 0 and (time.time() - start) * 1000.0 >= max_time_ms
     
-    legal = valid_moves(board)
+    legal = ordered_valid_moves(board)
 
     move = 0
     if not legal:
@@ -113,20 +118,22 @@ def choose_move(board: List[List[int]], turn: int, config: Dict) -> Tuple[int, D
     # Versao minimax:
     best_move = None
     best_score = -math.inf if is_max_player(turn) else math.inf
+    alpha = -math.inf
+    beta = math.inf
     for move in legal:
-        print("calling minimax...")
         copied_board = copy_board(board)
         moved_board = make_move(copied_board, move, turn)
-        score = minimax(moved_board, other(turn), max_depth, depth=1)
-        print(f"score para move {move} e player {turn} = {score}")
+        score = alpha_beta_minimax(moved_board, other(turn), max_depth, alpha=alpha, beta=beta, depth=1)
         if is_max_player(turn):
           if score > best_score:
             best_score = score
             best_move = move
+          alpha = max(best_score, alpha)
         else:
           if score < best_score:  
             best_score = score
             best_move = move
+          beta = min(best_score, beta)
 
 
     if best_move is None:
@@ -215,6 +222,53 @@ def minimax(board, player, max_depth, depth = 0) -> int:
       new_board = make_move(copied_board, move, P2)
       score = minimax(new_board, other(P2), max_depth, depth + 1)
       best_score = min(best_score, score)
+    return best_score
+
+
+def alpha_beta_minimax(board, player, max_depth, alpha, beta, depth = 0) -> int:
+    """
+    Recebe o tabuleiro, de qual jogador é a vez e retorna o melhor score para aquele jogador com base no tabuleiro atual.
+    Utiliza a otimizacao alpha-beta pruning para melhorar eficiencia. 
+
+    Parâmetros:
+      - board: matriz 6x7 com valores {0,1,2}
+      - player: 1 ou 2
+      - depth: int
+
+    Retorna:
+      - int (score)
+    """
+    
+    game_ended, winner = terminal(board)
+    is_tie = game_ended and winner == 0
+
+    if(is_tie): return 0
+
+    if(game_ended):
+        return 1_000_000 if winner == P1 else -1_000_000
+
+    if(depth >= max_depth):
+      return heuristics(board)
+
+    if(is_max_player(player)):
+        best_score = -math.inf
+        for move in ordered_valid_moves(board):
+            copied_board = copy_board(board)
+            new_board = make_move(copied_board, move, P1)
+            score = alpha_beta_minimax(new_board, other(P1), max_depth, alpha=alpha, beta=beta, depth=depth + 1)
+            best_score = max(best_score, score)
+            alpha = max(alpha, best_score)
+            if beta <= alpha: break
+        return best_score
+
+    best_score = +math.inf
+    for move in ordered_valid_moves(board):
+      copied_board = copy_board(board)
+      new_board = make_move(copied_board, move, P2)
+      score = alpha_beta_minimax(new_board, other(P2), max_depth, alpha=alpha, beta=beta, depth=depth + 1)
+      best_score = min(best_score, score)
+      beta = min(beta, best_score)
+      if beta <= alpha: break
     return best_score
 
 
