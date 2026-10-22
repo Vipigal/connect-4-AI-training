@@ -1,0 +1,168 @@
+\documentclass[letterpaper]{article} % DO NOT CHANGE THIS
+\usepackage{aaai2027}  % DO NOT CHANGE THIS
+\usepackage[hyphens]{url}  % DO NOT CHANGE THIS
+\usepackage{graphicx} % DO NOT CHANGE THIS
+\urlstyle{rm} % DO NOT CHANGE THIS
+\def\UrlFont{\rm}  % DO NOT CHANGE THIS
+\usepackage{natbib}  % DO NOT CHANGE THIS AND DO NOT ADD ANY OPTIONS TO IT
+\usepackage{caption} % DO NOT CHANGE THIS AND DO NOT ADD ANY OPTIONS TO IT
+\frenchspacing  % DO NOT CHANGE THIS
+\setlength{\pdfpagewidth}{8.5in} % DO NOT CHANGE THIS
+\setlength{\pdfpageheight}{11in} % DO NOT CHANGE THIS
+
+\usepackage[brazil]{babel}   % "Tabela", "Figura" e hifenização em português
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{booktabs}
+
+\pdfinfo{
+/TemplateVersion (2027.2)
+}
+
+\setcounter{secnumdepth}{0}
+
+\title{Busca Competitiva para Ligue-4: Minimax, Poda Alfa-Beta e Iterative Deepening}
+\author{
+    Vinicius Pinho Galvão
+}
+\affiliations{
+    Departamento de Ciência da Computação\\
+    Universidade Federal de Minas Gerais\\
+    viniciuspgalvao@dcc.ufmg.br
+}
+
+\begin{document}
+
+\maketitle
+
+\section{Introdução e Objetivo}
+O Ligue-4 é jogado em um tabuleiro de 6 linhas por 7 colunas. Cada jogador solta uma peça por vez em uma coluna, a peça cai até a casa vazia mais baixa, e vence quem alinhar quatro peças na horizontal, na vertical ou na diagonal. É um jogo de dois jogadores, soma zero e informação perfeita, então se encaixa direto no modelo de busca competitiva.
+
+O problema é o tamanho da árvore. Com até 7 jogadas possíveis por turno e partidas de até 42 jogadas, explorar a árvore inteira em tempo de jogo está fora de questão. A saída é limitar a profundidade da busca e estimar o valor das posições não terminais com uma heurística.
+
+O objetivo deste trabalho foi construir um agente e evoluí-lo em etapas (Minimax, depois poda Alfa-Beta, depois Iterative Deepening), medindo o impacto de cada uma em tempo, nós visitados e qualidade de jogo. O resultado principal é que a poda com ordenação de jogadas reduziu os nós visitados em cerca de 9 vezes na profundidade 5, e isso permitiu ao Iterative Deepening chegar a profundidades 7 e 8 em menos de 1 s por jogada.
+
+\section{Metodologia}
+
+\subsection{Minimax com Profundidade Limitada}
+Adotei uma convenção única de pontuação: o Jogador 1 (P1) é sempre o maximizador e o Jogador 2 (P2) o minimizador, e todo score é calculado do ponto de vista de P1. Assim a mesma função serve para os dois lados, e quem joga com P2 só precisa procurar o menor valor.
+
+Estados terminais são verificados antes do limite de profundidade. O empate vale 0, e a vitória vale $\pm(1.000.000 - d)$, onde $d$ é a profundidade em que ela ocorre. Subtrair a profundidade faz diferença na prática: entre duas vitórias, o agente prefere a mais rápida, e quando está perdido ele adia a derrota o máximo possível, dando chance para o adversário errar. Sem esse desconto, todas as derrotas valiam o mesmo e o agente escolhia a primeira coluna da lista, mesmo que ela perdesse na jogada seguinte. Como $d \le 42$, esse valor continua muito acima de qualquer valor heurístico. Ao atingir o limite de profundidade, o estado é avaliado pela heurística. Por convenção, a jogada da raiz conta como nível 1.
+
+\subsection{Função Heurística}
+A heurística tem a forma
+\[
+h(s) = \mathrm{pontos}(s, P1) - \mathrm{pontos}(s, P2),
+\]
+onde $\mathrm{pontos}$ soma componentes independentes, cada um em uma função própria. Essa simetria já penaliza as oportunidades do oponente: tudo que conta a favor de P2 desconta do score de P1, sem precisar de um termo específico para isso. Também deixa fácil adicionar componentes novos, basta somar mais uma função.
+
+\textbf{Controle do centro.} Cada peça do jogador em uma zona quadrada na parte inferior central do tabuleiro vale 1 ponto. Usei uma zona $3 \times 3$ (linhas 3 a 5, colunas 2 a 4), mas os limites são calculados a partir de \texttt{ROWS}, \texttt{COLS} e de uma constante de tamanho, para continuar funcionando se o tabuleiro mudar. A justificativa é que as casas centrais participam de mais linhas de quatro, e por causa da gravidade as primeiras peças centrais ficam embaixo, servindo de base para as próximas.
+
+\textbf{Janelas de quatro.} Percorro todas as 69 janelas de quatro casas consecutivas do tabuleiro (24 horizontais, 21 verticais e 12 em cada diagonal). Uma janela está \emph{viva} para o jogador se não tem nenhuma peça do oponente. Janelas vivas com 2 peças valem 3 pontos e com 3 peças valem 20. Contar janelas, em vez de sequências consecutivas, tem duas vantagens: pega padrões com buraco, como \texttt{X X \_ X}, que são ameaças reais, e ignora sequências já bloqueadas, que não vão virar vitória.
+
+\textbf{Calibração.} Quis que uma sequência de 3 em qualquer direção pesasse mais do que o controle do centro inteiro. Por isso uma tripla viva vale 20, mais que os 9 pontos máximos da zona central. E a soma de todos os componentes fica sempre muito abaixo do valor de vitória, para a heurística nunca ser confundida com um resultado decidido.
+
+\subsection{Poda Alfa-Beta e Ordenação de Jogadas}
+A poda mantém dois limites: $\alpha$, o melhor valor já garantido para o maximizador, e $\beta$, o melhor já garantido para o minimizador. Quando $\alpha \ge \beta$, nenhum valor dos irmãos restantes pode mudar a decisão acima, e eles são descartados.
+
+Na primeira versão, só os nós internos atualizavam $\alpha$ e $\beta$. A raiz avaliava todas as colunas com a janela aberta $(-\infty, \infty)$, porque eu achava que atualizar o parâmetro dentro da recursão bastava. Não basta: a raiz é um nó como os outros e precisa atualizar os próprios limites entre uma coluna e outra. Com isso, o score das colunas piores vira só um limite, então a comparação na raiz é estrita, para que um limite empatado nunca substitua a melhor jogada já encontrada.
+
+A segunda melhoria foi a ordenação. As colunas são exploradas do centro para as bordas (\texttt{3, 2, 4, 1, 5, 0, 6}). A ordem é calculada uma vez, ordenando as colunas por $|c - \lfloor \mathrm{COLS}/2 \rfloor|$, sem cravar posições. Como as jogadas centrais costumam ser as melhores, a busca encontra bons limites cedo e poda mais. De quebra, em caso de empate a raiz prefere o centro em vez da coluna 0.
+
+Para verificar a corretude, comparei a Alfa-Beta com o Minimax em 16 posições (tabuleiro vazio e 15 aleatórias), em profundidade 5. Em todas, o score da jogada escolhida foi o ótimo do Minimax. Os nós visitados caíram de 270.325 (Minimax) para 69.631 com a poda simples, 44.704 com os limites atualizados na raiz e 19.611 com a ordenação.
+
+\subsection{Iterative Deepening com Limite de Tempo}
+O agente final (\texttt{choose\_move}) executa a Alfa-Beta com profundidades 1, 2, 3, \ldots\ até \texttt{max\_depth} ou até o tempo acabar, guardando a melhor jogada da última iteração \emph{completa}.
+
+A busca checa o tempo em cada nó. Quando ele estoura, uma exceção (\texttt{SearchTimeout}) sobe pela recursão e aborta a iteração em andamento, cujo resultado é descartado. Descartar é necessário porque, numa iteração incompleta, parte das colunas foi avaliada na profundidade nova e parte nem foi avaliada, então a melhor jogada parcial não é comparável. Uso uma margem de segurança de 200 ms: o servidor mata o processo do agente em $\mathrm{limite} + 200$ ms, e criar o processo e importar o módulo já consome cerca de 130 ms.
+
+Por fim, a busca para cedo quando uma iteração completa retorna vitória ou derrota forçada ($|score| > 1.000.000 - 100$). Aprofundar não muda nada nesse caso, e antes dessa parada o agente gastava o tempo todo mesmo com uma vitória em uma jogada disponível.
+
+\section{Experimentos e Resultados}
+Os experimentos rodaram sem o servidor, com um script auxiliar (\texttt{experiments.py}) que joga partidas automáticas e coleta as métricas, em Python 3.10.12 num AMD Ryzen 5 3600 (WSL2). Cada confronto teve 20 partidas, alternando quem começa. Nos experimentos 2 e 3, as 2 primeiras jogadas de cada partida são aleatórias, pois dois agentes determinísticos repetiriam sempre a mesma partida. As métricas são: taxa de vitória, tempo médio por jogada, nós visitados por jogada (chamadas da função de busca) e, para o Iterative Deepening, a profundidade da última iteração completa.
+
+\subsection{Minimax vs. Aleatório}
+\begin{table}[t]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+Prof. & Vitória & Tempo/jog. (ms) & Nós/jog. \\
+\midrule
+2 & 100\% & 5,8 & 52 \\
+3 & 100\% & 38,2 & 378 \\
+4 & 100\% & 266,2 & 2.580 \\
+5 & 100\% & 1.743,1 & 17.778 \\
+\bottomrule
+\end{tabular}
+\caption{Minimax vs.\ agente aleatório (20 partidas por profundidade).}
+\label{tab:minimax-random}
+\end{table}
+A Tabela~\ref{tab:minimax-random} mostra que o Minimax venceu todas as partidas em todas as profundidades. O custo cresce cerca de 7 vezes por nível (52, 378, 2.580 e 17.778 nós), que é praticamente o fator de ramificação do jogo. Na profundidade 5, cada jogada já leva 1,7 s.
+
+\subsection{Alfa-Beta vs. Minimax}
+\begin{table}[t]
+\centering
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcrrrr}
+\toprule
+ & & \multicolumn{2}{c}{Tempo/jog. (ms)} & \multicolumn{2}{c}{Nós/jog.} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6}
+Prof. & V/E/D (AB) & AB & MM & AB & MM \\
+\midrule
+2 & 10/1/9 & 1,9 & 3,7 & 21 & 37 \\
+3 & 10/0/10 & 10,9 & 33,3 & 121 & 336 \\
+4 & 10/1/9 & 23,2 & 144,3 & 284 & 1.469 \\
+5 & 12/0/8 & 106,8 & 1.129,7 & 1.225 & 11.032 \\
+\bottomrule
+\end{tabular}
+\caption{Alfa-Beta com ordenação (AB) vs.\ Minimax (MM) na mesma profundidade (20 partidas cada).}
+\label{tab:ab-minimax}
+\end{table}
+Na Tabela~\ref{tab:ab-minimax}, a redução de nós cresce com a profundidade: 1,7 vezes em $d=2$, 2,8 em $d=3$, 5,2 em $d=4$ e 9,0 em $d=5$. O tempo acompanha (10,6 vezes mais rápido em $d=5$). O placar ficou perto de 50\% em todas as profundidades, o que é esperado: na mesma profundidade, as duas versões escolhem jogadas de mesmo valor.
+
+\subsection{Iterative Deepening vs. Alfa-Beta}
+\begin{table}[t]
+\centering
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcrrrr}
+\toprule
+ & & \multicolumn{2}{c}{Tempo/jog. (ms)} & \multicolumn{2}{c}{ID} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6}
+Limite & V/E/D (ID) & ID & AB & Nós/jog. & Prof. \\
+\midrule
+1 s & 14/3/3 & 568,9 & 105,6 & 8.200 & 8,3 \\
+2 s & 12/0/8 & 1.174,9 & 91,4 & 17.768 & 7,1 \\
+\bottomrule
+\end{tabular}
+\caption{Iterative Deepening (ID) vs.\ Alfa-Beta com profundidade fixa 5 (AB), 20 partidas cada. A Alfa-Beta visitou em média 1.196 e 1.068 nós por jogada.}
+\label{tab:id-ab}
+\end{table}
+Na Tabela~\ref{tab:id-ab}, o ID venceu 70\% das partidas com 1 s e 60\% com 2 s, atingindo em média as profundidades 8,3 e 7,1 contra a profundidade fixa 5 da Alfa-Beta. O tempo médio por jogada (569 e 1.175 ms) ficou abaixo do limite efetivo (800 e 1.800 ms, descontada a margem), porque muitas jogadas terminaram cedo por vitória ou derrota forçada.
+
+\subsection{Agente vs. Jogador Humano}
+Joguei aproximadamente 10 partidas contra cada agente, com 3 s por jogada, o limite da competição, alternando quem começa. Não consegui ganhar de nenhum deles. O placar contra o agente Minimax padrão ficou o mais equilibrado, pois era possível forcar empates com ele no comeco apenas fechando suas oportunidades. Após implementar o ID, não consegui mais forcar nenhum empate. Perdi todas as partidas. Aparentemente, ou eu não sou tão bom nesse jogo igual eu me lembrava da minha infância ou a competição com a IA é desigual (quer dizer que funcionou).
+
+Como pontos fortes, o agente sempre abre na coluna central e bloqueia ameaças imediatas, comportamentos que também conferi em testes com posições montadas. Ele tem a tendência de montar armadilhas como uma linha de 3 pecas no meio que dá a ele vantagem de ganhar com pecas tanto na esquerda quanto na direita, e se ele não consegue fazer isso, parte direto para construir uma diagnoal forte dominando o meio. Além disso, ele consegue punir os meus erros de forma que construa uma vantagem para si ao mesmo tempo.
+
+\section{Discussão}
+\textbf{Custo exponencial.} O experimento 1 deixa claro o limite prático do Minimax puro: cada nível multiplica o custo por cerca de 7, e a profundidade 6 já passaria de 10 s por jogada em Python. Contra um agente aleatório, profundidade 2 já basta para vencer sempre, então esse experimento mede mais o custo do que a qualidade.
+
+\textbf{De onde vem o ganho da Alfa-Beta.} Nas 16 posições de verificação, a poda sozinha reduziu os nós em cerca de 4 vezes. Atualizar os limites na raiz e ordenar as jogadas do centro para fora levou a redução a cerca de 14 vezes. Ou seja, a maior parte do ganho veio de decisões de implementação, não da poda em si. Isso confirma que a eficiência da Alfa-Beta depende muito da ordem em que os filhos são visitados. Em profundidades rasas o ganho é pequeno, porque há poucos níveis para os cortes se acumularem.
+
+\textbf{Por que o placar não é 50\% exato.} Os 60\% da Alfa-Beta em $d=5$ não indicam que ela joga melhor. Quando duas colunas têm o mesmo score, o Minimax escolhe a mais à esquerda e a Alfa-Beta a mais central. As escolhas têm o mesmo valor para a busca, mas levam a partidas diferentes, e com 20 partidas essa variação aparece no placar.
+
+\textbf{Iterative Deepening.} A grande vantagem é usar o tempo disponível em vez de uma profundidade fixa: na abertura, quando há muitas jogadas, ele chega a profundidade menor, e no fim do jogo, com menos colunas livres, desce bem mais. O custo de refazer as profundidades rasas é pequeno, porque cada iteração custa aproximadamente o fator de ramificação vezes a anterior, então todas as iterações anteriores somadas valem uma fração da última.
+
+Dois resultados do experimento 3 parecem contraintuitivos. Primeiro, a profundidade média com 2 s (7,1) ficou menor que com 1 s (8,3). Isso vem da parada antecipada: jogadas em posições já decididas param em profundidades rasas e puxam a média para baixo, e como a abertura é aleatória, cada série jogou partidas diferentes. Segundo, 2 s não venceu mais que 1 s. Com 20 partidas a diferença entre 14 e 12 vitórias está dentro do ruído, e mais profundidade não corrige os pontos cegos da heurística. Ainda assim, nas duas configurações o ID venceu a Alfa-Beta de profundidade fixa, o que mostra que a profundidade extra vale a pena.
+
+\textbf{Limitações.} A heurística não tem noção de paridade (ameaças em linhas ímpares favorecem P1 e em linhas pares favorecem P2), nem distingue uma ameaça jogável agora de uma que depende de a coluna encher. Isso pesa no fim do jogo, onde o Ligue-4 é decidido por zugzwang. Além disso, o agente não usa tabela de transposição, então a mesma posição alcançada por ordens diferentes é avaliada de novo. A implementação em Python, com o tabuleiro como lista de listas copiado a cada jogada, também limita a velocidade (cerca de 15 nós por milissegundo). Por fim, 20 partidas por confronto é pouco para separar diferenças pequenas de desempenho.
+
+\section{Conclusão}
+O que funcionou melhor foi a combinação de Alfa-Beta, ordenação do centro para fora e Iterative Deepening. Comparado ao Minimax ingênuo em profundidade 5, que levava 1,7 s por jogada, o agente final chega em média às profundidades 7 a 8 usando menos de 1 s, e venceu a Alfa-Beta de profundidade fixa nas duas configurações de tempo.
+
+Como melhorias, as mais promissoras são: uma tabela de transposição; usar a melhor jogada da iteração anterior do ID como primeira da ordenação; uma heurística com paridade de linhas e ameaças empilhadas; e bitboards para acelerar a geração de jogadas e a verificação de vitória.
+
+\section{Declaração de Uso de IA}
+Usei o Claude Code (modelo Claude Opus 5.5, da Anthropic) como apoio. Ele foi usado para: revisar e depurar o código que escrevi, apontando e explicando bugs; explicar conceitos de Minimax, heurística, poda e Iterative Deepening; tirar dúvidas de sintaxe Python; gerar o script auxiliar de experimentos (\texttt{experiments.py}); e montar o esqueleto deste relatório. A implementação do Minimax, da Alfa-Beta, do Iterative Deepening e da heurística foi escrita por mim. As transcrições estão em \url{https://github.com/Vipigal/connect-4-AI-training/tree/main/uso-de-ia}.
+
+\end{document}

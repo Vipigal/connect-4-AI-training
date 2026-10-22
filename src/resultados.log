@@ -1,0 +1,247 @@
+[exp 1] Minimax d=2 vs. Aleatório
+    partida 1/20: vitória de Minimax d=2
+    partida 2/20: vitória de Minimax d=2
+    partida 3/20: vitória de Minimax d=2
+    partida 4/20: vitória de Minimax d=2
+    partida 5/20: vitória de Minimax d=2
+    partida 6/20: vitória de Minimax d=2
+    partida 7/20: vitória de Minimax d=2
+    partida 8/20: vitória de Minimax d=2
+    partida 9/20: vitória de Minimax d=2
+    partida 10/20: vitória de Minimax d=2
+    partida 11/20: vitória de Minimax d=2
+    partida 12/20: vitória de Minimax d=2
+    partida 13/20: vitória de Minimax d=2
+    partida 14/20: vitória de Minimax d=2
+    partida 15/20: vitória de Minimax d=2
+    partida 16/20: vitória de Minimax d=2
+    partida 17/20: vitória de Minimax d=2
+    partida 18/20: vitória de Minimax d=2
+    partida 19/20: vitória de Minimax d=2
+    partida 20/20: vitória de Minimax d=2
+    concluído em 1 s
+[exp 1] Minimax d=3 vs. Aleatório
+    partida 1/20: vitória de Minimax d=3
+    partida 2/20: vitória de Minimax d=3
+    partida 3/20: vitória de Minimax d=3
+    partida 4/20: vitória de Minimax d=3
+    partida 5/20: vitória de Minimax d=3
+    partida 6/20: vitória de Minimax d=3
+    partida 7/20: vitória de Minimax d=3
+    partida 8/20: vitória de Minimax d=3
+    partida 9/20: vitória de Minimax d=3
+    partida 10/20: vitória de Minimax d=3
+    partida 11/20: vitória de Minimax d=3
+    partida 12/20: vitória de Minimax d=3
+    partida 13/20: vitória de Minimax d=3
+    partida 14/20: vitória de Minimax d=3
+    partida 15/20: vitória de Minimax d=3
+    partida 16/20: vitória de Minimax d=3
+    partida 17/20: vitória de Minimax d=3
+    partida 18/20: vitória de Minimax d=3
+    partida 19/20: vitória de Minimax d=3
+    partida 20/20: vitória de Minimax d=3
+    concluído em 5 s
+[exp 1] Minimax d=4 vs. Aleatório
+    partida 1/20: vitória de Minimax d=4
+    partida 2/20: vitória de Minimax d=4
+    partida 3/20: vitória de Minimax d=4
+    partida 4/20: vitória de Minimax d=4
+    partida 5/20: vitória de Minimax d=4
+    partida 6/20: vitória de Minimax d=4
+    partida 7/20: vitória de Minimax d=4
+    partida 8/20: vitória de Minimax d=4
+    partida 9/20: vitória de Minimax d=4
+    partida 10/20: vitória de Minimax d=4
+    partida 11/20: vitória de Minimax d=4
+    partida 12/20: vitória de Minimax d=4
+    partida 13/20: vitória de Minimax d=4
+    partida 14/20: vitória de Minimax d=4
+    partida 15/20: vitória de Minimax d=4
+    partida 16/20: vitória de Minimax d=4
+    partida 17/20: vitória de Minimax d=4
+    partida 18/20: vitória de Minimax d=4
+    partida 19/20: vitória de Minimax d=4
+    partida 20/20: vitória de Minimax d=4
+    concluído em 28 s
+[exp 1] Minimax d=5 vs. Aleatório
+    partida 1/20: vitória de Minimax d=5
+    partida 2/20: vitória de Minimax d=5
+    partida 3/20: vitória de Minimax d=5
+    partida 4/20: vitória de Minimax d=5
+    partida 5/20: vitória de Minimax d=5
+    partida 6/20: vitória de Minimax d=5
+    partida 7/20: vitória de Minimax d=5
+    partida 8/20: vitória de Minimax d=5
+    partida 9/20: vitória de Minimax d=5
+    partida 10/20: vitória de Minimax d=5
+    partida 11/20: vitória de Minimax d=5
+    partida 12/20: vitória de Minimax d=5
+    partida 13/20: vitória de Minimax d=5
+    partida 14/20: vitória de Minimax d=5
+    partida 15/20: vitória de Minimax d=5
+    partida 16/20: vitória de Minimax d=5
+    partida 17/20: vitória de Minimax d=5
+    partida 18/20: vitória de Minimax d=5
+    partida 19/20: vitória de Minimax d=5
+    partida 20/20: vitória de Minimax d=5
+    concluído em 187 s
+[exp 2] Alfa-Beta d=2 vs. Minimax d=2
+    partida 1/20: vitória de Minimax d=2
+    partida 2/20: vitória de Minimax d=2
+    partida 3/20: vitória de Alfa-Beta d=2
+    partida 4/20: vitória de Minimax d=2
+    partida 5/20: vitória de Minimax d=2
+    partida 6/20: vitória de Alfa-Beta d=2
+    partida 7/20: vitória de Minimax d=2
+    partida 8/20: vitória de Alfa-Beta d=2
+    partida 9/20: vitória de Alfa-Beta d=2
+    partida 10/20: vitória de Alfa-Beta d=2
+    partida 11/20: vitória de Alfa-Beta d=2
+    partida 12/20: vitória de Minimax d=2
+    partida 13/20: vitória de Alfa-Beta d=2
+    partida 14/20: vitória de Minimax d=2
+    partida 15/20: empate
+    partida 16/20: vitória de Minimax d=2
+    partida 17/20: vitória de Alfa-Beta d=2
+    partida 18/20: vitória de Minimax d=2
+    partida 19/20: vitória de Alfa-Beta d=2
+    partida 20/20: vitória de Alfa-Beta d=2
+    concluído em 2 s
+[exp 2] Alfa-Beta d=3 vs. Minimax d=3
+    partida 1/20: vitória de Alfa-Beta d=3
+    partida 2/20: vitória de Alfa-Beta d=3
+    partida 3/20: vitória de Minimax d=3
+    partida 4/20: vitória de Minimax d=3
+    partida 5/20: vitória de Alfa-Beta d=3
+    partida 6/20: vitória de Alfa-Beta d=3
+    partida 7/20: vitória de Minimax d=3
+    partida 8/20: vitória de Minimax d=3
+    partida 9/20: vitória de Alfa-Beta d=3
+    partida 10/20: vitória de Minimax d=3
+    partida 11/20: vitória de Alfa-Beta d=3
+    partida 12/20: vitória de Alfa-Beta d=3
+    partida 13/20: vitória de Minimax d=3
+    partida 14/20: vitória de Alfa-Beta d=3
+    partida 15/20: vitória de Alfa-Beta d=3
+    partida 16/20: vitória de Alfa-Beta d=3
+    partida 17/20: vitória de Minimax d=3
+    partida 18/20: vitória de Minimax d=3
+    partida 19/20: vitória de Minimax d=3
+    partida 20/20: vitória de Minimax d=3
+    concluído em 9 s
+[exp 2] Alfa-Beta d=4 vs. Minimax d=4
+    partida 1/20: vitória de Alfa-Beta d=4
+    partida 2/20: vitória de Minimax d=4
+    partida 3/20: vitória de Alfa-Beta d=4
+    partida 4/20: empate
+    partida 5/20: vitória de Alfa-Beta d=4
+    partida 6/20: vitória de Minimax d=4
+    partida 7/20: vitória de Alfa-Beta d=4
+    partida 8/20: vitória de Minimax d=4
+    partida 9/20: vitória de Minimax d=4
+    partida 10/20: vitória de Alfa-Beta d=4
+    partida 11/20: vitória de Alfa-Beta d=4
+    partida 12/20: vitória de Minimax d=4
+    partida 13/20: vitória de Minimax d=4
+    partida 14/20: vitória de Minimax d=4
+    partida 15/20: vitória de Alfa-Beta d=4
+    partida 16/20: vitória de Minimax d=4
+    partida 17/20: vitória de Minimax d=4
+    partida 18/20: vitória de Alfa-Beta d=4
+    partida 19/20: vitória de Alfa-Beta d=4
+    partida 20/20: vitória de Alfa-Beta d=4
+    concluído em 55 s
+[exp 2] Alfa-Beta d=5 vs. Minimax d=5
+    partida 1/20: vitória de Alfa-Beta d=5
+    partida 2/20: vitória de Minimax d=5
+    partida 3/20: vitória de Alfa-Beta d=5
+    partida 4/20: vitória de Alfa-Beta d=5
+    partida 5/20: vitória de Alfa-Beta d=5
+    partida 6/20: vitória de Alfa-Beta d=5
+    partida 7/20: vitória de Alfa-Beta d=5
+    partida 8/20: vitória de Alfa-Beta d=5
+    partida 9/20: vitória de Minimax d=5
+    partida 10/20: vitória de Minimax d=5
+    partida 11/20: vitória de Minimax d=5
+    partida 12/20: vitória de Minimax d=5
+    partida 13/20: vitória de Minimax d=5
+    partida 14/20: vitória de Alfa-Beta d=5
+    partida 15/20: vitória de Alfa-Beta d=5
+    partida 16/20: vitória de Minimax d=5
+    partida 17/20: vitória de Alfa-Beta d=5
+    partida 18/20: vitória de Alfa-Beta d=5
+    partida 19/20: vitória de Minimax d=5
+    partida 20/20: vitória de Alfa-Beta d=5
+    concluído em 311 s
+[exp 3] ID 1 s vs. Alfa-Beta d=5
+    partida 1/20: vitória de ID 1 s
+    partida 2/20: empate
+    partida 3/20: vitória de ID 1 s
+    partida 4/20: vitória de ID 1 s
+    partida 5/20: vitória de ID 1 s
+    partida 6/20: empate
+    partida 7/20: vitória de ID 1 s
+    partida 8/20: vitória de ID 1 s
+    partida 9/20: vitória de ID 1 s
+    partida 10/20: vitória de ID 1 s
+    partida 11/20: vitória de ID 1 s
+    partida 12/20: vitória de ID 1 s
+    partida 13/20: vitória de Alfa-Beta d=5
+    partida 14/20: vitória de ID 1 s
+    partida 15/20: empate
+    partida 16/20: vitória de Alfa-Beta d=5
+    partida 17/20: vitória de Alfa-Beta d=5
+    partida 18/20: vitória de ID 1 s
+    partida 19/20: vitória de ID 1 s
+    partida 20/20: vitória de ID 1 s
+    concluído em 208 s
+[exp 3] ID 2 s vs. Alfa-Beta d=5
+    partida 1/20: vitória de Alfa-Beta d=5
+    partida 2/20: vitória de ID 2 s
+    partida 3/20: vitória de ID 2 s
+    partida 4/20: vitória de ID 2 s
+    partida 5/20: vitória de Alfa-Beta d=5
+    partida 6/20: vitória de Alfa-Beta d=5
+    partida 7/20: vitória de Alfa-Beta d=5
+    partida 8/20: vitória de ID 2 s
+    partida 9/20: vitória de ID 2 s
+    partida 10/20: vitória de Alfa-Beta d=5
+    partida 11/20: vitória de ID 2 s
+    partida 12/20: vitória de ID 2 s
+    partida 13/20: vitória de Alfa-Beta d=5
+    partida 14/20: vitória de ID 2 s
+    partida 15/20: vitória de Alfa-Beta d=5
+    partida 16/20: vitória de ID 2 s
+    partida 17/20: vitória de Alfa-Beta d=5
+    partida 18/20: vitória de ID 2 s
+    partida 19/20: vitória de ID 2 s
+    partida 20/20: vitória de ID 2 s
+    concluído em 394 s
+
+### Experimento 1: Minimax vs. Aleatório
+
+| Agente A | Agente B | V / E / D (A) | Taxa vit. A | Tempo/jogada A (ms) | Tempo/jogada B (ms) | Nós/jogada A | Nós/jogada B | Prof. média A |
+|---|---|---|---|---|---|---|---|---|
+| Minimax d=2 | Aleatório | 20 / 0 / 0 | 100% | 5.8 | 0.0 | 52 | 0 | 2.0 |
+| Minimax d=3 | Aleatório | 20 / 0 / 0 | 100% | 38.2 | 0.0 | 378 | 0 | 3.0 |
+| Minimax d=4 | Aleatório | 20 / 0 / 0 | 100% | 266.2 | 0.0 | 2580 | 0 | 4.0 |
+| Minimax d=5 | Aleatório | 20 / 0 / 0 | 100% | 1743.1 | 0.0 | 17778 | 0 | 5.0 |
+
+### Experimento 2: Alfa-Beta vs. Minimax
+
+| Agente A | Agente B | V / E / D (A) | Taxa vit. A | Tempo/jogada A (ms) | Tempo/jogada B (ms) | Nós/jogada A | Nós/jogada B | Prof. média A |
+|---|---|---|---|---|---|---|---|---|
+| Alfa-Beta d=2 | Minimax d=2 | 10 / 1 / 9 | 50% | 1.9 | 3.7 | 21 | 37 | 2.0 |
+| Alfa-Beta d=3 | Minimax d=3 | 10 / 0 / 10 | 50% | 10.9 | 33.3 | 121 | 336 | 3.0 |
+| Alfa-Beta d=4 | Minimax d=4 | 10 / 1 / 9 | 50% | 23.2 | 144.3 | 284 | 1469 | 4.0 |
+| Alfa-Beta d=5 | Minimax d=5 | 12 / 0 / 8 | 60% | 106.8 | 1129.7 | 1225 | 11032 | 5.0 |
+
+### Experimento 3: Iterative Deepening vs. Alfa-Beta
+
+| Agente A | Agente B | V / E / D (A) | Taxa vit. A | Tempo/jogada A (ms) | Tempo/jogada B (ms) | Nós/jogada A | Nós/jogada B | Prof. média A |
+|---|---|---|---|---|---|---|---|---|
+| ID 1 s | Alfa-Beta d=5 | 14 / 3 / 3 | 70% | 568.9 | 105.6 | 8200 | 1196 | 8.3 |
+| ID 2 s | Alfa-Beta d=5 | 12 / 0 / 8 | 60% | 1174.9 | 91.4 | 17768 | 1068 | 7.1 |
+
+CSV salvo em resultados.csv
