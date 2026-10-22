@@ -10,6 +10,9 @@ TWO_PIECE_SEQUENCE = 2
 THREE_PIECE_SEQUENCE = 3
 SEQUENCE_POINTS = {TWO_PIECE_SEQUENCE: 3, THREE_PIECE_SEQUENCE: 20}
 CENTER_ORDER = sorted(range(COLS), key=lambda c: abs(c - COLS // 2))
+VICTORY_POINTS = 1_000_000
+
+class SearchTimeout(Exception): pass
 
 # -----------------------------------------------------------------------------
 # Utilidades de tabuleiro (PRONTAS)
@@ -103,7 +106,8 @@ def choose_move(board: List[List[int]], turn: int, config: Dict) -> Tuple[int, D
 
     # Função auxiliar para checar tempo decorrido   
     def time_exceeded():
-        return max_time_ms > 0 and (time.time() - start) * 1000.0 >= max_time_ms
+        safety_net_ms = 200
+        return max_time_ms > 0 and (time.time() - start) * 1000.0 >= max_time_ms - safety_net_ms
     
     legal = ordered_valid_moves(board)
 
@@ -114,27 +118,35 @@ def choose_move(board: List[List[int]], turn: int, config: Dict) -> Tuple[int, D
     
     # VERSÃO INICIAL: escolhe aleatoriamente entre as jogadas legais
     # move = random.choice(legal)
-
+    best_move = legal[0]
+    current_depth = 1
     # Versao minimax:
-    best_move = None
-    best_score = -math.inf if is_max_player(turn) else math.inf
-    alpha = -math.inf
-    beta = math.inf
-    for move in legal:
-        copied_board = copy_board(board)
-        moved_board = make_move(copied_board, move, turn)
-        score = alpha_beta_minimax(moved_board, other(turn), max_depth, alpha=alpha, beta=beta, depth=1)
-        if is_max_player(turn):
-          if score > best_score:
-            best_score = score
-            best_move = move
-          alpha = max(best_score, alpha)
-        else:
-          if score < best_score:  
-            best_score = score
-            best_move = move
-          beta = min(best_score, beta)
-
+    while current_depth <= max_depth:
+      current_best_move = None
+      best_score = -math.inf if is_max_player(turn) else math.inf
+      alpha = -math.inf
+      beta = math.inf
+      try:
+        for move in legal:
+              copied_board = copy_board(board)
+              moved_board = make_move(copied_board, move, turn)
+              score = alpha_beta_minimax(moved_board, other(turn), max_depth=current_depth, alpha=alpha, beta=beta, timer=time_exceeded, depth=1)
+              if is_max_player(turn):
+                if score > best_score:
+                  best_score = score
+                  current_best_move = move
+                alpha = max(best_score, alpha)
+              else:
+                if score < best_score:  
+                  best_score = score
+                  current_best_move = move
+                beta = min(best_score, beta)
+      except SearchTimeout:
+          print(f"Timeout recebido com depth = {current_depth}")
+          break
+      best_move = current_best_move 
+      if abs(best_score) > VICTORY_POINTS - 100: break
+      current_depth += 1
 
     if best_move is None:
         print(f'Minimax nao achou nenhuma boa jogada com max_depth={max_depth}')
@@ -202,7 +214,7 @@ def minimax(board, player, max_depth, depth = 0) -> int:
     if(is_tie): return 0
 
     if(game_ended):
-        return 1_000_000 if winner == P1 else -1_000_000
+        return VICTORY_POINTS - depth if winner == P1 else -VICTORY_POINTS + depth
 
     if(depth >= max_depth):
       return heuristics(board)
@@ -225,7 +237,7 @@ def minimax(board, player, max_depth, depth = 0) -> int:
     return best_score
 
 
-def alpha_beta_minimax(board, player, max_depth, alpha, beta, depth = 0) -> int:
+def alpha_beta_minimax(board, player, max_depth, alpha, beta, timer, depth = 0) -> int:
     """
     Recebe o tabuleiro, de qual jogador é a vez e retorna o melhor score para aquele jogador com base no tabuleiro atual.
     Utiliza a otimizacao alpha-beta pruning para melhorar eficiencia. 
@@ -238,6 +250,7 @@ def alpha_beta_minimax(board, player, max_depth, alpha, beta, depth = 0) -> int:
     Retorna:
       - int (score)
     """
+    if(timer()): raise SearchTimeout()
     
     game_ended, winner = terminal(board)
     is_tie = game_ended and winner == 0
@@ -245,7 +258,7 @@ def alpha_beta_minimax(board, player, max_depth, alpha, beta, depth = 0) -> int:
     if(is_tie): return 0
 
     if(game_ended):
-        return 1_000_000 if winner == P1 else -1_000_000
+        return VICTORY_POINTS - depth if winner == P1 else -VICTORY_POINTS + depth
 
     if(depth >= max_depth):
       return heuristics(board)
@@ -255,7 +268,7 @@ def alpha_beta_minimax(board, player, max_depth, alpha, beta, depth = 0) -> int:
         for move in ordered_valid_moves(board):
             copied_board = copy_board(board)
             new_board = make_move(copied_board, move, P1)
-            score = alpha_beta_minimax(new_board, other(P1), max_depth, alpha=alpha, beta=beta, depth=depth + 1)
+            score = alpha_beta_minimax(new_board, other(P1), max_depth, alpha=alpha, beta=beta, timer=timer, depth=depth + 1)
             best_score = max(best_score, score)
             alpha = max(alpha, best_score)
             if beta <= alpha: break
@@ -265,7 +278,7 @@ def alpha_beta_minimax(board, player, max_depth, alpha, beta, depth = 0) -> int:
     for move in ordered_valid_moves(board):
       copied_board = copy_board(board)
       new_board = make_move(copied_board, move, P2)
-      score = alpha_beta_minimax(new_board, other(P2), max_depth, alpha=alpha, beta=beta, depth=depth + 1)
+      score = alpha_beta_minimax(new_board, other(P2), max_depth, alpha=alpha, beta=beta, timer=timer, depth=depth + 1)
       best_score = min(best_score, score)
       beta = min(beta, best_score)
       if beta <= alpha: break
